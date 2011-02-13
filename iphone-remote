@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 
+# a simple webserver that offers remote control options 
+# as an iphone web app
+
+# TODO: security!
+
+
+# mru, 2011-02
+
+
 import sys, os, platform
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -30,99 +39,74 @@ class Commands:
         else:
             os.system("amixer -q set Master mute")
 
-template = Template("""
-<%def name="truth(boolean)">
-% if boolean:
-true
-% else:
-false
-% endif
-</%def>
-<%def name="link(fun,colspan=1,confirm=False)">
-<% 
-f = getattr(Commands, fun)
-assert callable(f)
-%>
-<td colspan="${colspan}" onClick="exec('${fun}', ${truth(confirm)}); return false">
-<div class="button" >
-${getattr(Commands, fun).__doc__}
-</div>
-</td>
-</%def>
-<html>
- <head>
-<meta name="viewport" content="user-scalable=no, width=device-width" />
-  <title>remotecontrol</title>
-  <style type="text/css">
+css = """
 body {
   text-align: center;
-
-    background-color: #ddd; /* Background color */
-    color: #222;            /* Foreground color used for text */
-    font-family: Helvetica; 
-    font-size: 14px;
-    margin: 0;              /* Amount of negative space around the outside of the body */
-    padding: 0;             /* Amount of negative space around the inside of the body */
-
+  background-color: #ddd; /* Background color */
+  color: #222;            /* Foreground color used for text */
+  font-family: Helvetica; 
+  font-size: 14px;
+  margin: 0;              /* Amount of negative space around the outside of the body */
+  padding: 0;             /* Amount of negative space around the inside of the body */
 }
- h1 {
-    margin: 0;
-    padding: 0;
-    background-color: #ccc;
-    border-bottom: 1px solid #666;
-    color: #222;
-    display: block;
-    font-size: 20px;
-    font-weight: bold;
-    padding: 10px 0;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 0px 1px 0px #fff;
-    background-image: -webkit-gradient(linear, left top, left bottom, 
+
+h1 {
+  margin: 0;
+  padding: 0;
+  background-color: #ccc;
+  border-bottom: 1px solid #666;
+  color: #222;
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 0;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #fff;
+  background-image: -webkit-gradient(linear, left top, left bottom, 
                                        from(#ccc), to(#999));
 }
 
 h2 {
-    margin: 0;
-    padding: 0;
-    background-color: #ccc;
-    border-bottom: 1px solid #666;
-    color: #def;
-    display: block;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 8px 0;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 0px 1px 0px #222;
-    background-image: -webkit-gradient(linear, left top, left bottom, 
+  margin: 0;
+  padding: 0;
+  background-color: #ccc;
+  border-bottom: 1px solid #666;
+  color: #def;
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 8px 0;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #222;
+  background-image: -webkit-gradient(linear, left top, left bottom, 
                                        from(#024FC2), to(#234E8E));
 }
 
 table {
-    margin: 10px;
-    padding: 0;
+  margin: 10px;
+  padding: 0;
   width: 90%;
 }
+
 td {
-    -webkit-border-radius: 8px;
-    -webkit-border-top-right-radius: 8px;
+  -webkit-border-radius: 8px;
 
-    background-color: #FFFFFF;
-    border: 1px solid #999999;
-    color: #222222;
-    display: block;
-    font-size: 17px;
-    font-weight: bold;
-    margin-bottom: -1px;
-    padding: 12px 10px;
-    text-decoration: none;
-    text-align: center;
+  background-color: #FFFFFF;
+  border: 1px solid #999999;
+  color: #222222;
+  display: block;
+  font-size: 17px;
+  font-weight: bold;
+  margin-bottom: -1px;
+  padding: 12px 10px;
+  text-decoration: none;
+  text-align: center;
 }
+"""
 
-  </style>
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <script language="javascript" type="text/javascript">
+javascript = """
     var request = false;
     request = new XMLHttpRequest();
     function exec(op, do_confirm) {
@@ -135,13 +119,40 @@ td {
         request.send();
       } 
     }
-   </script>
+"""
+
+
+content = Template("""
+<%def name="truth(boolean)">
+% if boolean:
+true
+% else:
+false
+% endif
+</%def>
+<%def name="link(fun,colspan=1,confirm=False)">
+<% 
+f = getattr(Commands, fun)
+assert callable(f)
+%>
+<td colspan="${colspan}" onClick="exec('${fun}', ${str(confirm).lower()}); return false">
+<div class="button" >
+${getattr(Commands, fun).__doc__}
+</div>
+</td>
+</%def>
+<html>
+ <head>
+  <meta name="viewport" content="user-scalable=no, width=device-width" />
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+  <title>remotecontrol</title>
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <script type="text/javascript" src="remote.js"></script>
  </head>
 
 <body>
 
- <h1>Remote Control: ${nodename}</h1>
-
+<h1>Remote Control: ${nodename}</h1>
 
 <h2>Audio</h2>
 
@@ -168,14 +179,26 @@ class MyHandler(SimpleHTTPRequestHandler):
     protocol = "HTTP/1.0"
 
     def do_GET(self):
-        print ".",
+        print "get", self.path
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
 
-        if self.path == "/": 
-          self.wfile.write(template)
-          return
+        if self.path == "/":
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(content)
+            return
+
+        if self.path == "/style.css":
+            self.send_header("Content-type", "text/css")
+            self.end_headers()
+            self.wfile.write(css)
+            return
+
+        if self.path == "/remote.js":
+            self.send_header("Content-type", "text/javascript")
+            self.end_headers()
+            self.wfile.write(javascript)
+            return
 
         try:
             name = self.path[1:]
@@ -189,4 +212,3 @@ httpd = BaseHTTPServer.HTTPServer(server_address, MyHandler)
 sa = httpd.socket.getsockname()
 print "Serving on", sa[0], "port", sa[1]
 httpd.serve_forever()
-
