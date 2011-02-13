@@ -10,10 +10,10 @@ via a webinterface on the iPhone.
 ![Screenshot](https://github.com/mru00/iphone-remote/blob/master/screenshot-1.png?raw=true "Screenshot")
 
 
-Adding Command
---------------
+Adding Commands
+---------------
 
-Add commands to the 'Commands' class decorated as staticmethod.
+Add commands to the `Commands` class decorated as staticmethod.
 
 
     class Commands:
@@ -23,9 +23,11 @@ Add commands to the 'Commands' class decorated as staticmethod.
             """Standby"""
             pass
 
+The doc string will be used as rendered text.
+
 
 Then, add them to the HTML page. You can refer to a command with the
-'${link("func-name")}' call in the 'content' string.
+`${link("func-name")}` call in the `content` string.
 
     <h2>Audio</h2>
 

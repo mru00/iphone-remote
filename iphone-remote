@@ -115,7 +115,7 @@ javascript = """
         really = confirm('Really execute?');
       }
       if (really) {
-        request.open("GET", "/"+op, true);
+        request.open("GET", "/do/"+op, true);
         request.send();
       } 
     }
@@ -145,7 +145,7 @@ ${getattr(Commands, fun).__doc__}
  <head>
   <meta name="viewport" content="user-scalable=no, width=device-width" />
   <link rel="stylesheet" type="text/css" href="style.css"/>
-  <title>remotecontrol</title>
+  <title>Remote Control: ${nodename}</title>
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <script type="text/javascript" src="remote.js"></script>
  </head>
@@ -200,11 +200,19 @@ class MyHandler(SimpleHTTPRequestHandler):
             self.wfile.write(javascript)
             return
 
-        try:
-            name = self.path[1:]
-            getattr(Commands, name)()
-        except Exception, e:
-            print "invalid function", e
+        if self.path.startswith("/do/"):
+
+            try:
+                name = self.path.replace("/do/", "")
+                getattr(Commands, name)()
+            except Exception, e:
+                print "invalid function", e
+        else:
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write("Unknown Url")
+            return
+
 
 server_address = ('0.0.0.0', 8000)
 httpd = BaseHTTPServer.HTTPServer(server_address, MyHandler)
