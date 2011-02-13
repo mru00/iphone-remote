@@ -7,6 +7,7 @@ mru <mru@sisyphus.teil.cc>
 A simple web application that allows executing functions on the server
 via a webinterface on the iPhone.
 
+![Screenshot](https://github.com/mru00/iphone-remote/blob/master/screenshot-1.png?raw=true "Screenshot")
 
 
 Adding Command
