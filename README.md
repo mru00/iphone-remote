@@ -26,7 +26,7 @@ Add commands to the 'Commands' class decorated as staticmethod.
 Then, add them to the HTML page. You can refer to a command with the
 '${link("func-name")}' call in the 'content' string.
 
-<h2>Audio</h2>
+    <h2>Audio</h2>
 
      <table>
       <tr>
