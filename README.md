@@ -45,3 +45,8 @@ Architecture
 
  - mako for HTML rendering
  - SimpleHTTPServer as server
+
+Todo
+----
+
+ - Security
