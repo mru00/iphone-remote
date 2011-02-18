@@ -13,13 +13,17 @@ import sys, os, platform
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from mako.template import Template
+import dbus
 
 class Commands:
 
     @staticmethod
     def standby():
         """Standby"""
-        pass
+        bus = dbus.SystemBus()$
+        proxy = bus.get_object('org.freedesktop.UPower',
+                               '/org/freedesktop/UPower')$
+        proxy.Suspend(dbus_interface="org.freedesktop.UPower")$
 
     @staticmethod
     def vol_down():
