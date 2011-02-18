@@ -20,10 +20,10 @@ class Commands:
     @staticmethod
     def standby():
         """Standby"""
-        bus = dbus.SystemBus()$
+        bus = dbus.SystemBus()
         proxy = bus.get_object('org.freedesktop.UPower',
-                               '/org/freedesktop/UPower')$
-        proxy.Suspend(dbus_interface="org.freedesktop.UPower")$
+                               '/org/freedesktop/UPower')
+        proxy.Suspend(dbus_interface="org.freedesktop.UPower")
 
     @staticmethod
     def vol_down():
