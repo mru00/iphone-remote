@@ -43,6 +43,12 @@ Then, add them to the HTML page. You can refer to a command with the
      </table>
 
 
+Installation
+---------
+
+Download to some location and add iphone_remote to the 'Startup Applications'.
+
+
 Architecture
 ------------
 
