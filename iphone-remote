@@ -9,7 +9,7 @@
 # mru, 2011-02
 
 
-import sys, os, platform
+import sys, os, platform, shutil
 import BaseHTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from mako.template import Template
@@ -48,10 +48,10 @@ body {
   text-align: center;
   background-color: #ddd; /* Background color */
   color: #222;            /* Foreground color used for text */
-  font-family: Helvetica; 
+  font-family: Helvetica;
   font-size: 14px;
-  margin: 0;              /* Amount of negative space around the outside of the body */
-  padding: 0;             /* Amount of negative space around the inside of the body */
+  margin: 0;      /* Amount of negative space around the outside of the body */
+  padding: 0;     /* Amount of negative space around the inside of the body */
 }
 
 h1 {
@@ -67,7 +67,7 @@ h1 {
   text-align: center;
   text-decoration: none;
   text-shadow: 0px 1px 0px #fff;
-  background-image: -webkit-gradient(linear, left top, left bottom, 
+  background-image: -webkit-gradient(linear, left top, left bottom,
                                        from(#ccc), to(#999));
 }
 
@@ -84,7 +84,7 @@ h2 {
   text-align: center;
   text-decoration: none;
   text-shadow: 0px 1px 0px #222;
-  background-image: -webkit-gradient(linear, left top, left bottom, 
+  background-image: -webkit-gradient(linear, left top, left bottom,
                                        from(#024FC2), to(#234E8E));
 }
 
@@ -92,6 +92,18 @@ table {
   margin: 10px;
   padding: 0;
   width: 90%;
+}
+
+.status_error {
+background-color: red;
+color: black;
+font-size: 10px;
+}
+
+.status_success {
+background-color: blue;
+color: black;
+font-size: 10px;
 }
 
 td {
@@ -112,7 +124,19 @@ td {
 
 javascript = """
     var request = false;
+    var xmlHttpTimeout = null;
     request = new XMLHttpRequest();
+    request.onreadystatechange=function() {
+      if (request.readyState==4) {
+        var status = document.getElementById("statusbar");
+        if (request.status == 200) {
+          status.innerHTML='<div class="status_success"></div>';
+        }
+        else {
+          status.innerHTML='<div class="status_error">'+request.responseText+'</div>';
+        }
+      }
+    }
     function exec(op, do_confirm) {
       really = true;
       if (do_confirm ) {
@@ -121,7 +145,7 @@ javascript = """
       if (really) {
         request.open("GET", "/do/"+op, true);
         request.send();
-      } 
+      }
     }
 """
 
@@ -135,7 +159,7 @@ false
 % endif
 </%def>
 <%def name="link(fun,colspan=1,confirm=False)">
-<% 
+<%
 f = getattr(Commands, fun)
 assert callable(f)
 %>
@@ -149,6 +173,7 @@ ${getattr(Commands, fun).__doc__}
  <head>
   <meta name="viewport" content="user-scalable=no, width=device-width" />
   <link rel="stylesheet" type="text/css" href="style.css"/>
+  <link rel="apple-touch-icon" sizes="114x114" href="touch-icon-iphone4.png" />
   <title>Remote Control: ${nodename}</title>
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <script type="text/javascript" src="remote.js"></script>
@@ -157,7 +182,7 @@ ${getattr(Commands, fun).__doc__}
 <body>
 
 <h1>Remote Control: ${nodename}</h1>
-
+<div id="statusbar"></div>
 <h2>Audio</h2>
 
  <table>
@@ -179,29 +204,34 @@ ${getattr(Commands, fun).__doc__}
 </html>
 """).render(Commands=Commands, nodename=platform.node())
 
+
+
 class MyHandler(SimpleHTTPRequestHandler):
     protocol = "HTTP/1.0"
 
     def do_GET(self):
         print "get", self.path
-        self.send_response(200)
+
+        def resp(code, mime, text):
+            self.send_response(code)
+            self.send_header("Content-type", mime)
+            self.end_headers()
+            self.wfile.write(text)
 
         if self.path == "/":
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(content)
+            resp(200, "text/html", content)
             return
 
         if self.path == "/style.css":
-            self.send_header("Content-type", "text/css")
-            self.end_headers()
-            self.wfile.write(css)
+            resp(200, "text/css", css)
+            return
+
+        if self.path == "/touch-icon-iphone4.png":
+            resp(200, "image/png", open('remote.png', 'r').read())
             return
 
         if self.path == "/remote.js":
-            self.send_header("Content-type", "text/javascript")
-            self.end_headers()
-            self.wfile.write(javascript)
+            resp(200, "text/javascript", javascript)
             return
 
         if self.path.startswith("/do/"):
@@ -209,12 +239,13 @@ class MyHandler(SimpleHTTPRequestHandler):
             try:
                 name = self.path.replace("/do/", "")
                 getattr(Commands, name)()
+                resp(200, "text/html", "success")
             except Exception, e:
+                resp(500, "text/html", "failure: invalid function"+str(e))
                 print "invalid function", e
         else:
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write("Unknown Url")
+            resp(404, "text/html", "failure: location not found")
+            print "location not available:", self.path
             return
 
 
