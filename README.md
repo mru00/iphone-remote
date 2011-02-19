@@ -54,7 +54,7 @@ Download to some location and add `iphone-remote` to the 'Startup Applications'.
 On the iPhone
 ~~~~~~~~~
 
-Open `http://<<IP of the server/` in Safari.
+Open `http://<<IP of the server:8000/` in Safari.
 
 
 Architecture
