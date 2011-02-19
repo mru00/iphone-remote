@@ -46,7 +46,15 @@ Then, add them to the HTML page. You can refer to a command with the
 Installation
 ---------
 
+On the PC
+~~~~~~~
+
 Download to some location and add `iphone-remote` to the 'Startup Applications'.
+
+On the iPhone
+~~~~~~~~~
+
+Open `http://<<IP of the server/` in Safari.
 
 
 Architecture
