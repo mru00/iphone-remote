@@ -7,6 +7,9 @@ mru <mru@sisyphus.teil.cc>
 A simple web application that allows executing functions on the server
 via a webinterface on the iPhone.
 
+ * Written for Ubuntu, but may be adapted for other platforms. 
+ * Written in pure Python.
+
 ![Screenshot](https://github.com/mru00/iphone-remote/blob/master/screenshot-1.png?raw=true "Screenshot")
 
 
