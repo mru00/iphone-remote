@@ -1,16 +1,19 @@
 iPhone Remote
 =============
 
-mru <mru@sisyphus.teil.cc>
+mru <mru at sisyphus dot teil dot cc>
 
 
 A simple web application that allows executing functions on the server
 via a webinterface on the iPhone.
 
- * Written for Ubuntu, but may be adapted for other platforms. 
- * Written in pure Python.
+ * Written for Ubuntu, but may be easily adapted for other platforms.
+ * Server written in pure Python.
+ * Client is HTML/Javascript as Apple WebApp
 
 ![Screenshot](https://github.com/mru00/iphone-remote/blob/master/screenshot-1.png?raw=true "Screenshot")
+
+![Screenshot](https://github.com/mru00/iphone-remote/blob/master/screenshot-2.png?raw=true "Screenshot")
 
 
 Adding Commands
@@ -47,12 +50,12 @@ Installation
 ---------
 
 On the PC
-~~~~~~~
+~~~~~~~~~
 
 Download to some location and add `iphone-remote` to the 'Startup Applications'.
 
 On the iPhone
-~~~~~~~~~
+~~~~~~~~~~~~
 
 Open `http://<<IP of the server:8000/` in Safari.
 
