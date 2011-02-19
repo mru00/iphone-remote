@@ -46,7 +46,7 @@ Then, add them to the HTML page. You can refer to a command with the
 Installation
 ---------
 
-Download to some location and add iphone_remote to the 'Startup Applications'.
+Download to some location and add `iphone-remote` to the 'Startup Applications'.
 
 
 Architecture
