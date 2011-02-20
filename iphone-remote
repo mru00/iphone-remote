@@ -15,7 +15,33 @@ from SimpleHTTPServer import SimpleHTTPRequestHandler
 from mako.template import Template
 import dbus
 
+
 class Commands:
+
+    @staticmethod
+    def totem_pause():
+        """Play/Pause"""
+        bus = dbus.SessionBus()
+        proxy = bus.get_object('org.mpris.Totem',
+                               '/Player')
+        proxy.Pause(dbus_interface="org.freedesktop.MediaPlayer")
+
+    @staticmethod
+    def totem_next():
+        """Next"""
+        bus = dbus.SessionBus()
+        proxy = bus.get_object('org.mpris.Totem',
+                               '/Player')
+        proxy.Next(dbus_interface="org.freedesktop.MediaPlayer")
+
+    @staticmethod
+    def totem_prev():
+        """Prev"""
+        bus = dbus.SessionBus()
+        proxy = bus.get_object('org.mpris.Totem',
+                               '/Player')
+        proxy.Prev(dbus_interface="org.freedesktop.MediaPlayer")
+
 
     @staticmethod
     def standby():
@@ -42,6 +68,30 @@ class Commands:
             os.system("amixer -q set Master unmute")
         else:
             os.system("amixer -q set Master mute")
+
+# #!/bin/bash
+# # amarok.sh collection of dbus shortcuts to control Amarok 2.x in a terminal session
+
+# case "$1" in
+#   'initialize') # Works only when started like this '. bin/amarok.sh initialize'
+# # otherwise the exported variables will be destroyed with termination of skript
+#      SESSIONID=$(ls .dbus/session-bus);
+#      export `cat .dbus/session-bus/$SESSIONID | grep DBUS_SESSION_BUS_ADDRESS=`;
+#      export `cat .dbus/session-bus/$SESSIONID | grep DBUS_SESSION_BUS_PID=`;
+#      export `cat .dbus/session-bus/$SESSIONID | grep DBUS_SESSION_BUS_WINDOWID=`;
+#   ;;
+#   'play') dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Play;;
+#   'pause') dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Pause;;
+#   'next') dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Next;;
+#   'previous') dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Prev;;
+#   'stop') dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Stop;;
+#   'quit') dbus-send --type=method_call --dest=org.kde.amarok / org.freedesktop.MediaPlayer.Quit;;
+#   'louder') qdbus org.kde.amarok /Player VolumeSet $(($(qdbus org.kde.amarok /Player VolumeGet) + 5));;
+#   'quiet') qdbus org.kde.amarok /Player VolumeSet $(($(qdbus org.kde.amarok /Player VolumeGet) - 5));;
+#   'jump+') qdbus org.kde.amarok /Player PositionSet $(($(qdbus org.kde.amarok /Player PositionGet) + 5000));;
+#   'jump-') qdbus org.kde.amarok /Player PositionSet $(($(qdbus org.kde.amarok /Player PositionGet) - 5000));;
+#   *) echo "No valid parameter. Parameters are play, pause, next, previous, stop, quit, louder, quiet, jump+, jump-"
+# esac
 
 css = """
 body {
@@ -192,6 +242,16 @@ ${getattr(Commands, fun).__doc__}
    ${link("vol_up")}
   <tr>
    ${link("mute", colspan=2)}
+ </table>
+
+<h2>Totem</h2>
+
+ <table>
+  <tr>
+   ${link("totem_prev")}
+   ${link("totem_next")}
+  <tr>
+   ${link("totem_pause", colspan=2)}
  </table>
 
 <h2>Power</h2>
