@@ -199,27 +199,19 @@ javascript = """
     }
 """
 
+manifest="""CACHE MANIFEST
+/style.css
+/remote.js
+/touch-icon-iphone4.png
+"""
+
+# marking as html5 does not work, then
+# table colspan goes wrong.
+# temporarily disable doctype
+# <!DOCTYPE html>
 
 content = Template("""
-<%def name="truth(boolean)">
-% if boolean:
-true
-% else:
-false
-% endif
-</%def>
-<%def name="link(fun,colspan=1,confirm=False)">
-<%
-f = getattr(Commands, fun)
-assert callable(f)
-%>
-<td colspan="${colspan}" onClick="exec('${fun}', ${str(confirm).lower()}); return false">
-<div class="button" >
-${getattr(Commands, fun).__doc__}
-</div>
-</td>
-</%def>
-<html>
+<html lang="en" manifest="/cache.manifest">
  <head>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="viewport" content="user-scalable=no, width=device-width" />
@@ -263,6 +255,14 @@ ${getattr(Commands, fun).__doc__}
 
  </body>
 </html>
+<%def name="link(fun,colspan=1,confirm=False)">
+<%
+f = getattr(Commands, fun)
+assert callable(f)
+%>
+<td colspan="${colspan}" onClick="exec('${fun}', ${str(confirm).lower()}); return false">${getattr(Commands, fun).__doc__}</td>
+</%def>
+
 """).render(Commands=Commands, nodename=platform.node())
 
 
@@ -272,6 +272,9 @@ class MyHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         print "get", self.path
+
+        def read(filename):
+            return open(filename, 'r').read()
 
         def resp(code, mime, text):
             self.send_response(code)
@@ -285,6 +288,10 @@ class MyHandler(SimpleHTTPRequestHandler):
 
         if self.path == "/style.css":
             resp(200, "text/css", css)
+            return
+
+        if self.path == "/cache.manifest":
+            resp(200, "text/cache-manifest", manifest)
             return
 
         if self.path == "/touch-icon-iphone4.png":
@@ -310,7 +317,7 @@ class MyHandler(SimpleHTTPRequestHandler):
             return
 
 
-server_address = ('0.0.0.0', 8000)
+server_address = ('0.0.0.0', 8003)
 httpd = BaseHTTPServer.HTTPServer(server_address, MyHandler)
 
 sa = httpd.socket.getsockname()
